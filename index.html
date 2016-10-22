@@ -1,0 +1,119 @@
+<html lang="en" >
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Angular Material style sheet -->
+  <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+  <style type="text/css">
+.githubApp md-grid-list {
+  margin: 8px;
+}
+
+.githubApp .gray {
+  background: #f5f5f5;
+}
+
+.githubApp md-grid-tile {
+  transition: all 400ms ease-out 50ms;
+}
+  </style>
+</head>
+<body ng-app="GithubApp" class="githubApp" ng-controller="myCtrl" ng-cloak>
+
+<section layout="row" layout-sm="column" layout-wrap>
+<div class="md-content" layout-padding>
+	<md-input-container>
+        <label>UserName</label>
+        <input ng-model="username">
+     </md-input-container>
+	<md-button ng-click="getUser(username)">Submit</md-button>
+</div>
+</section>
+
+	<section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
+      <md-button ng-click= "sortByFollowers()">followers</md-button>
+      <md-button ng-click= "sortByName()">name</md-button>
+      <md-button ng-click= "sortByLocation()">location</md-button>
+    </section>
+<div class='md-padding' layout="row" layout-wrap>
+        <md-card style="width: 300px;" ng-repeat="profile in profiles | orderBy: sort_type" >
+          <img src="{{profile.avatar_url}}" class="md-card-image" alt="user avatar">
+          <md-card-content>
+            <h2>{{profile.name}}</h2>
+            <p>Location: {{profile.location}}</p>
+   			<p>Followers: {{profile.followers}}</p>
+          </md-card-content>
+          <div class="md-actions" layout="row" layout-align="end center">
+            <md-button ng-click="deleteUser(profile)">Delete</md-button>
+            <md-button ng-click="viewProfile(profile)">View</md-button>
+          </div>
+        </md-card>
+ </div>
+  </div>
+  <!-- Angular Material requires Angular.js Libraries -->
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+
+  <!-- Angular Material Library -->
+  <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+  
+  <!-- Your application bootstrap  -->
+  <script type="text/javascript">    
+    /**
+     * You must include the dependency on 'ngMaterial' 
+     */
+    var app = angular.module('GithubApp', ['ngMaterial']);
+
+    app.controller("myCtrl", function($scope, $http, $location) {
+
+    $scope.profiles = [];
+    $scope.sort_type = 'name';
+
+
+    $scope.getUser = function(username){
+    	$http({
+  			method: 'GET',
+  			url: 'https://api.github.com/users/'+username
+		}).then(function successCallback(response) {
+			if (response.data.message!= "Not Found") {
+					$scope.profiles.push(response.data);
+    		console.log($scope.profiles);
+			}
+    	
+  		}, function errorCallback(response) {
+    	// called asynchronously if an error occurs
+    	// or server returns response with an error status.
+  		});
+    }
+
+    $scope.deleteUser = function(profile){
+    	var index = $scope.profiles.indexOf(profile);
+    	
+    	if (index > -1) {
+			$scope.profiles.splice(index, 1);
+		}
+    }
+
+    $scope.viewProfile= function(profile){
+    	window.location= profile.html_url;
+    }
+
+    $scope.getUser("tristanguigue");
+
+    $scope.sortByFollowers = function(){
+		$scope.sort_type = '-followers';
+	}
+	$scope.sortByName = function(){
+		$scope.sort_type = 'name';
+	}
+	$scope.sortByLocation = function(){
+		$scope.sort_type = 'location';
+	}
+	});
+
+	
+  </script>
+  
+</body>
+</html>
